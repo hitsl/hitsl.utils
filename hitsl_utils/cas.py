@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
+import logging
 import blinker
 import requests
 from flask import request, redirect, json, session
 
 __author__ = 'viruzzz-kun'
+
+
+logger = logging.getLogger('CasExtension')
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    logger.addHandler(logging.StreamHandler())
 
 
 class CasError(Exception):
