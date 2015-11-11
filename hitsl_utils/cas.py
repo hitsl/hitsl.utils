@@ -36,6 +36,17 @@ class CasExtension(object):
             self.init_app(app)
         self.app = app
 
+    @staticmethod
+    def __make_config(app):
+        config = app.config.get('CASTIEL', {})
+        for key, value in app.config.iteritems():
+            if key.startswith('CASTIEL_'):
+                config[key[7:]] = value.strip().rstrip('/')
+        config.setdefault('AUTH_COOKIE', 'CastielAuthToken')
+        config.setdefault('ADDRESS', 'http://127.0.0.1:5001')
+        config.setdefault('ADDRESS_INTERNAL', config['ADDRESS'])
+        return config
+
     def init_app(self, app):
         """
         Install Extension at app
@@ -43,15 +54,17 @@ class CasExtension(object):
         :param app: Application
         :return:
         """
-        self.cookie_name = app.config.get('CASTIEL_AUTH_COOKIE', 'CastielAuthToken')
-        self.cas_external_address = app.config.get('CASTIEL_ADDRESS', 'http://127.0.0.1:5001/').rstrip('/')
-        self.cas_internal_address = app.config.get('CASTIEL_ADDRESS_INTERNAL', self.cas_external_address)
+        self.app = app
+        config = self.__make_config(app)
+        self.cookie_name = config['AUTH_COOKIE']
+        self.cas_external_address = config['ADDRESS']
+        self.cas_internal_address = config['ADDRESS_INTERNAL']
         app.before_request(self._before_request)
         app.errorhandler(CasNotAvailable)(self._cas_not_available)
 
     def _before_request(self):
         if not (request.endpoint and 'static' not in request.endpoint and
-                not getattr(self.app.view_functions[request.endpoint], 'is_public', False)):
+                not getattr(self.app.view_functions[request.endpoint], 'cas_is_public', False)):
             return
         token = request.cookies.get(self.cookie_name)
         if not token:
@@ -77,3 +90,12 @@ class CasExtension(object):
 
     def _cas_not_available(self, e):
         return u'Невозможно связаться с подсистемой централизованной аутентификации'
+
+    def public(self, function):
+        """
+        Use this decorator to indicate that view function is public and should not be passed through CAS
+        :param function:
+        :return:
+        """
+        function.cas_is_public = True
+        return function
