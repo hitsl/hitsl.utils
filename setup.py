@@ -14,7 +14,7 @@ def read(fname):
 setup(
     name='hitsl_utils',
     version='0.1.0',
-    url='https://github.org/hitsl/hitsl.utils',
+    url='https://github.com/hitsl/hitsl.utils',
     author='hitsl',
     description='Small utilities used in HITSL',
     long_description=read('README.md'),
