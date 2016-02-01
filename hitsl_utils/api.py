@@ -5,9 +5,10 @@ import json
 import traceback
 import datetime
 from flask import make_response
-from pytz import timezone
 
 __author__ = 'viruzzz-kun'
+
+# TODO: Review module to conform one found in Nemesis
 
 
 class ApiException(Exception):
@@ -23,17 +24,22 @@ class ApiException(Exception):
         return u'%s %s' % (self.code, self.message)
 
 
+def json_default_webmis(o, app):
+    from pytz import timezone
+
+    if app:
+        try:
+            return timezone(app.config['TIME_ZONE']).localize(o).astimezone(tz=timezone('UTC')).isoformat()
+        except OverflowError:
+            pass
+
+
 class WebMisJsonEncoder(json.JSONEncoder):
     flask_app = None
     unicodes = ()
 
     def default(self, o):
         if isinstance(o, datetime.datetime):
-            if self.flask_app:
-                try:
-                    return timezone(self.flask_app.config['TIME_ZONE']).localize(o).astimezone(tz=timezone('UTC')).isoformat()
-                except OverflowError:
-                    pass
             return o.isoformat()
         elif isinstance(o, (datetime.date, datetime.time)):
             return o.isoformat()

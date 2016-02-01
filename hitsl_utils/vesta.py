@@ -6,6 +6,9 @@ from hitsl_utils.kladr import KladrLocality, KladrStreet
 __author__ = 'viruzzz-kun'
 
 
+# TODO Conform to Vesta v2 api (nVesta)
+
+
 logger = logging.getLogger('VestaClient')
 logger.setLevel(logging.INFO)
 if not logger.handlers:

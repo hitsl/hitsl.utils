@@ -3,6 +3,9 @@
 __author__ = 'viruzzz-kun'
 
 
+# TODO: Review module to conform one found in Nemesis
+
+
 class KladrLocality(object):
     # I - IV KLADR levels
     code_len = 11
